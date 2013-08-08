@@ -170,7 +170,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Logging\PushService.cs" />
+    <Compile Include="Logging\DiagnosisEventSourceService.cs" />
     <Compile Include="Logging\UnityEventLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnityExtensions\UnityIoCPerRequestLifetimeAttribute.cs" />
