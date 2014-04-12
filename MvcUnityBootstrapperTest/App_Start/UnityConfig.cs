@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;
 using MvcUnityBootstrapperTest.Business;
@@ -29,31 +30,25 @@ namespace MvcUnityBootstrapperTest.App_Start
         }
         #endregion
 
-        /// <summary>Registers the type mappings with the Unity container.</summary>
-        /// <param name="container">The unity container to configure.</param>
-        /// <remarks>There is no need to register concrete types such as controllers or API controllers (unless you want to 
-        /// change the defaults), as Unity allows resolving a concrete type even if it was not previously registered.</remarks>
+        private const string ClassesToScan = "MvcUnityBootstrapperTest";
+
         public static void RegisterTypes(IUnityContainer container)
         {
-            container.RegisterTypes(UnityHelpers.GetTypesWithCustomAttribute<UnityIoCPerRequestLifetimeAttribute>(AppDomain.CurrentDomain.GetAssemblies()),
+            var myAssemblies =
+                AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => a.FullName.StartsWith(ClassesToScan))
+                    .ToArray();
+
+            container.RegisterTypes(UnityHelpers.GetTypesWithCustomAttribute<UnityIoCPerRequestLifetimeAttribute>(myAssemblies),
                                     WithMappings.FromMatchingInterface,
                                     WithName.Default,
                                     PerRequest
                                 )
-                     .RegisterTypes(UnityHelpers.GetTypesWithCustomAttribute<UnityIoCTransientLifetimeAttribute>(AppDomain.CurrentDomain.GetAssemblies()),
+                     .RegisterTypes(UnityHelpers.GetTypesWithCustomAttribute<UnityIoCTransientLifetimeAttribute>(myAssemblies),
                                     WithMappings.FromMatchingInterface,
                                     WithName.Default,
                                     WithLifetime.Transient
                                 );
-
-            // This method checks and for classes from Loaded Assemblies and creates a per request lifetime object for classes with the custom attribute 
-            //container.RegisterTypes(AllClasses.FromLoadedAssemblies(),
-            //                        UnityHelpers.FromAllInterfacesWith_PerRequestLifetimeAttribute,
-            //                        WithName.Default,
-            //                        PerRequest
-            //                    )
-            //         .RegisterType<IUnitOfWorkExample, UnitOfWorkExampleTest>(new TransientLifetimeManager());
- 
         }
 
         public static Func<System.Type, Microsoft.Practices.Unity.LifetimeManager> PerRequest = (x) => new PerRequestLifetimeManager();
